@@ -4,7 +4,11 @@ XGBoost-based land cover classification for Arctic/tundra vegetation mapping usi
 
 ## Overview
 
-This repository contains a Jupyter notebook that performs supervised land cover classification by fusing hyperspectral imagery with polarimetric Synthetic Aperture Radar (polSAR) data. The workflow is designed for Arctic vegetation mapping where class imbalance is common.
+This repository contains a Jupyter notebook that performs supervised land cover classification by fusing hyperspectral imagery with polarimetric Synthetic Aperture Radar (polSAR) data. The workflow is designed for Arctic vegetation mapping as a part of my master's thesis, and is based on vegetation field reference and remote sensing data from the Inuvik - Tuktoyaktuk region of Canadas Northwest Territories.
+
+![Interactive Classification Map](output/LC_FMNF_SAR_0114_1134/Recording%202026-01-14%20120404.gif)
+
+*Interactive map visualization showing land cover predictions overlaid on satellite imagery. Hover functionality displays class names for each pixel.*
 
 ## Remote Sensing Data
 
@@ -32,6 +36,14 @@ XGBoost iteratively builds decision trees that correct errors from previous tree
 - **5-fold stratified cross-validation** for unbiased accuracy estimation
 - **Early stopping** to prevent overfitting by monitoring validation loss
 - **Hyperparameter tuning** options via randomized search
+
+### Example Classification Performance
+
+The model generates learning curves and confusion matrices to assess classification performance:
+
+![Learning Curves and Confusion Matrix](output/LC_FMNF_SAR_0114_1103/LC_FMNF_SAR_0114_1103_learning_curves.png)
+
+*Left: Training vs validation loss over boosting rounds. Center: Generalization gap tracking. Right: Normalized confusion matrix showing per-class accuracy on the validation set.*
 
 ## Workflow
 
