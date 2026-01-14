@@ -27,6 +27,8 @@ The fusion of spectral (hyperspectral) and structural (polSAR) information impro
 
 The workflow uses **XGBoost (Extreme Gradient Boosting)**, a tree-based ensemble machine learning algorithm, for supervised land cover classification. Remote sensing band values serve as the **explanatory variables (features)** for predicting land cover class membership:
 
+Training labels are derived from **field plots and drone interpretation**: (1) **1×1 m vegetation plots** were described in the field and then assigned to the land cover classes used in this project, and (2) a complementary set of **a few thousand 5×5 m training pixels** was manually interpreted from **4 cm drone imagery** covering the areas around the vegetation plots. These references were used to create the land cover training/validation dataset (e.g., the `LandcoverRef.tif` layer).
+
 - **Hyperspectral MNF bands (3)**: Capture spectral variance related to vegetation biochemistry and species composition
 - **Pauli decomposition RGB bands (3)**: Encode structural scattering properties related to canopy architecture and biomass
 
