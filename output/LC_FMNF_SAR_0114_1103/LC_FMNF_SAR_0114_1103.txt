@@ -1,0 +1,170 @@
+================================================================================
+XGBOOST LAND COVER CLASSIFICATION RUN LOG
+================================================================================
+Timestamp: 2026-01-14 11:03:10
+Output: output/LC_FMNF_SAR_0114_1103/LC_FMNF_SAR_0114_1103.tif
+================================================================================
+
+========================================
+INPUT DATA
+========================================
+Landcover Reference:
+  Path: input/LandcoverRef.tif
+  CRS: EPSG:32608, Resolution: (5.0, -5.0), Shape: (1, 12334, 6637)
+
+Hyperspectral MNF:
+  Path: input/Wyvern Tiles Nohistmatch FMNF/*.dat
+  Bands: [1, 2, 3]
+  CRS: OGC:CRS84, Resolution: (0.00012438, -4.482e-05), Shape: (31, 13004, 6992)
+
+SAR Pauli:
+  Path: input/SAR Pauli/*.tif
+  Bands: [1, 2, 3]
+  CRS: EPSG:32608, Resolution: (8.533756483346414, -3.907858339618248), Shape: (3, 48175, 10393)
+  NoData: 0
+
+========================================
+FEATURE STACK
+========================================
+Native CRS: OGC:CRS84
+Resolution: (0.00012438, -4.482e-05)
+Shape: (13004, 6992)
+
+Features:
+  - Hyperspectral MNF_band1
+  - Hyperspectral MNF_band2
+  - Hyperspectral MNF_band3
+  - SAR Pauli_band1
+  - SAR Pauli_band2
+  - SAR Pauli_band3
+
+Total pixels: 90,923,968
+Valid for training: 475,206 (0.5%)
+
+========================================
+CLASS DISTRIBUTION
+========================================
+Training samples: 475,206, Features: 6
+
+Class Distribution:
+  DST         :  4,321 (  0.9%)
+  TST         :  2,472 (  0.5%)
+  LTDST       :  7,959 (  1.7%)
+  OST         :  1,600 (  0.3%)
+  Wet         :    477 (  0.1%)
+  Waterbody   : 393,805 ( 82.9%)
+  PBHV        :    828 (  0.2%)
+  Barren      : 10,347 (  2.2%)
+  SASH        :    596 (  0.1%)
+  BRN         : 52,801 ( 11.1%)
+
+========================================
+MODEL TRAINING
+========================================
+Mode: 5-Fold Cross-Validation
+
+CV Accuracy: 0.9853
+
+XGBoost Parameters Used:
+  n_estimators: 400
+  max_depth: 11
+  learning_rate: 0.0102
+  min_child_weight: 1
+  subsample: 0.7169
+  colsample_bytree: 0.847
+  gamma: 0.0448
+  reg_alpha: 0.0685
+  reg_lambda: 0.1519
+  device: cuda
+
+Classification Report (Out-of-Fold):
+              precision    recall  f1-score   support
+
+         DST       0.65      0.73      0.68      4321
+         TST       0.71      0.84      0.77      2472
+       LTDST       0.86      0.82      0.84      7959
+         OST       0.62      0.79      0.70      1600
+         Wet       0.46      0.47      0.46       477
+   Waterbody       1.00      1.00      1.00    393805
+        PBHV       0.59      0.76      0.66       828
+      Barren       0.96      0.95      0.95     10347
+        SASH       0.35      0.83      0.49       596
+         BRN       0.99      0.98      0.99     52801
+
+    accuracy                           0.99    475206
+   macro avg       0.72      0.82      0.75    475206
+weighted avg       0.99      0.99      0.99    475206
+
+
+Balanced Training Set: 17,811 samples (multiplier=5)
+Final model: n_estimators=400 (from early stopping)
+Final model retrained on 100% of balanced data for prediction.
+
+Feature Importance:
+  Hyperspectral MNF_band1       : 0.3151
+  Hyperspectral MNF_band3       : 0.2339
+  Hyperspectral MNF_band2       : 0.1682
+  SAR Pauli_band2               : 0.1486
+  SAR Pauli_band1               : 0.0791
+  SAR Pauli_band3               : 0.0551
+
+========================================
+OVERFITTING ANALYSIS
+========================================
+
+Final Model Training Metrics:
+  Balanced dataset size: 17,811
+  Train split: 14,248 (80%)
+  Validation split: 3,563 (20%)
+
+  Train Accuracy: 0.9756
+  Validation Accuracy: 0.8535
+  Overfit Gap: 0.1222
+
+Learning Curve Analysis:
+  Final Train Loss: 0.1916
+  Final Val Loss: 0.4384
+  Best Val Loss: 0.4384 (epoch 400)
+  Loss Gap: 0.2468
+  Early Stopping: enabled (patience=20)
+  Optimal n_estimators: 400
+
+Per-Class Validation Accuracy:
+  DST         : 0.755 (360/477)
+  TST         : 0.803 (383/477)
+  LTDST       : 0.811 (387/477)
+  OST         : 0.794 (254/320)
+  Wet         : 0.531 (51/96)
+  Waterbody   : 0.996 (475/477)
+  PBHV        : 0.717 (119/166)
+  Barren      : 0.952 (454/477)
+  SASH        : 0.840 (100/119)
+  BRN         : 0.960 (458/477)
+
+========================================
+PREDICTION
+========================================
+Valid pixels predicted: 12,929,887 / 90,923,968
+
+Predicted Class Distribution:
+  DST         : 3,169,587 pixels
+  TST         : 1,796,947 pixels
+  LTDST       : 1,650,705 pixels
+  OST         : 1,164,068 pixels
+  Wet         : 164,374 pixels
+  Waterbody   : 3,351,507 pixels
+  PBHV        : 220,818 pixels
+  Barren      : 398,024 pixels
+  SASH        : 752,594 pixels
+  BRN         : 261,263 pixels
+
+========================================
+OUTPUT
+========================================
+Output Folder: output/LC_FMNF_SAR_0114_1103
+Raster: output/LC_FMNF_SAR_0114_1103/LC_FMNF_SAR_0114_1103.tif
+Colormap: output/LC_FMNF_SAR_0114_1103/LC_FMNF_SAR_0114_1103.clr
+Learning Curves: output/LC_FMNF_SAR_0114_1103/LC_FMNF_SAR_0114_1103_learning_curves.png
+CRS: OGC:CRS84
+Dtype: uint8, NoData: 0
+
