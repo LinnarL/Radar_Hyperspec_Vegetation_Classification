@@ -1,6 +1,9 @@
 # Input data (large raster files)
 input/
 
+# Output artifacts (generated results)
+output/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -52,3 +55,6 @@ desktop.ini
 *.tmp
 *.temp
 *.log
+
+# Claude Code
+CLAUDE.md

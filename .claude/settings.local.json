@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(conda run -n DaskXArray python:*)",
+      "Bash(where:*)",
+      "Bash(\"C:\\\\Users\\\\lili0243\\\\.conda\\\\envs\\\\DaskXArray\\\\python.exe\" -c \"import geopandas as gpd; gdf = gpd.read_file\\(''c:/Users/lili0243/Documents/GitHub/Radar_Hyperspec_Vegetation_Classification/input/All_sumps_processed_GT_data_2024-2025.gpkg''\\); print\\(''Columns:'', list\\(gdf.columns\\)\\); print\\(''Shape:'', gdf.shape\\); print\\(''CRS:'', gdf.crs\\); print\\(''Geometry type:'', gdf.geometry.type.unique\\(\\)\\)\")",
+      "Bash(\"C:\\\\Users\\\\lili0243\\\\.conda\\\\envs\\\\DaskXArray\\\\python.exe\" -c \"import geopandas as gpd; gdf = gpd.read_file\\(''c:/Users/lili0243/Documents/GitHub/Radar_Hyperspec_Vegetation_Classification/input/All_sumps_processed_GT_data_2024-2025.gpkg''\\); print\\(''=== LC_class values ===''\\); print\\(gdf[''LC_class''].value_counts\\(\\)\\); print\\(''\\\\n=== LF_class values ===''\\); print\\(gdf[''LF_class''].value_counts\\(\\)\\); print\\(''\\\\n=== Vg_class values ===''\\); print\\(gdf[''Vg_class''].value_counts\\(\\)\\)\")",
+      "Bash(\"C:\\\\Users\\\\lili0243\\\\.conda\\\\envs\\\\DaskXArray\\\\python.exe\" -c \"import rasterio.features; help\\(rasterio.features.rasterize\\)\")",
+      "Bash(\"C:\\\\Users\\\\lili0243\\\\.conda\\\\envs\\\\DaskXArray\\\\python.exe\" -c \"from shapely.geometry import Point; p = Point\\(0,0\\); print\\(''Buffer example:'', p.buffer\\(10\\)\\)\")",
+      "Bash(python:*)"
+    ]
+  }
+}
