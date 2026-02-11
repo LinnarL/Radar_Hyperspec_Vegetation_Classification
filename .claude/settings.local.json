@@ -8,7 +8,8 @@
       "Bash(\"C:\\\\Users\\\\lili0243\\\\.conda\\\\envs\\\\DaskXArray\\\\python.exe\" -c \"import rasterio.features; help\\(rasterio.features.rasterize\\)\")",
       "Bash(\"C:\\\\Users\\\\lili0243\\\\.conda\\\\envs\\\\DaskXArray\\\\python.exe\" -c \"from shapely.geometry import Point; p = Point\\(0,0\\); print\\(''Buffer example:'', p.buffer\\(10\\)\\)\")",
       "Bash(python:*)",
-      "Bash(python3 -c:*)"
+      "Bash(python -c:*)",
+      "Bash(dir:*)"
     ]
   }
 }

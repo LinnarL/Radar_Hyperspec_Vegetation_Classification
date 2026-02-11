@@ -1,14 +1,12 @@
 # Radar & Hyperspectral Vegetation Classification
 
-XGBoost-based land cover classification for Arctic/tundra vegetation mapping using multi-sensor remote sensing data.
+XGBoost-based land cover classification and regression for Arctic/tundra vegetation mapping using multi-sensor remote sensing data.
 
 ## Overview
 
-This repository contains a Jupyter notebook that performs supervised land cover classification by fusing hyperspectral imagery with polarimetric Synthetic Aperture Radar (polSAR) data. The workflow is designed for Arctic vegetation mapping as a part of my master's thesis, and is based on vegetation field reference and remote sensing data from the Inuvik - Tuktoyaktuk region of Canadas Northwest Territories.
+This repository contains a Jupyter notebook that performs supervised land cover classification (or continuous-value regression) by fusing multiple remote sensing datasets. The workflow is designed for Arctic vegetation mapping as part of a master's thesis, using vegetation field reference and remote sensing data from the Inuvik-Tuktoyaktuk region of Canada's Northwest Territories.
 
-![Interactive Classification Map](output/LC_FMNF_SAR_0114_1134/Recording%202026-01-14%20120404.gif)
-
-*Interactive map visualization showing land cover predictions overlaid on satellite imagery. Hover functionality displays class names for each pixel.*
+The pipeline is modular: any combination of input datasets can be enabled -- hyperspectral imagery, polarimetric SAR, Sentinel-2 multispectral, and/or foundation model embeddings (e.g., AlphaEarth) -- and the notebook will automatically stack the selected bands and optional spectral indices into a unified feature set.
 
 ## Remote Sensing Data
 
@@ -21,89 +19,111 @@ This repository contains a Jupyter notebook that performs supervised land cover 
 - **Volume scattering** (multiple bounces): Indicates vegetation canopy density and biomass
 - **Double-bounce scattering**: Associated with vertical structures like shrub stems
 
-The fusion of spectral (hyperspectral) and structural (polSAR) information improves classification accuracy by capturing complementary vegetation characteristics that neither sensor can fully resolve alone.
+### Sentinel-2 Multispectral
+**Sentinel-2** L2A imagery providing 12 spectral bands from visible to shortwave infrared. Can be used both as raw band features and as a source for spectral indices (NDVI, NDWI, BSI, etc.).
+
+### Foundation Model Embeddings
+**AlphaEarth** (or similar) foundation model embeddings -- high-dimensional feature vectors (e.g., 63 bands) derived from pre-trained remote sensing models. These encode learned representations of land surface characteristics without requiring hand-crafted feature engineering.
+
+The fusion of spectral, structural, and learned features improves classification accuracy by capturing complementary vegetation characteristics that no single sensor can fully resolve alone.
 
 ## Classification Approach
 
-The workflow uses **XGBoost (Extreme Gradient Boosting)**, a tree-based ensemble machine learning algorithm, for supervised land cover classification. Remote sensing band values serve as the **explanatory variables (features)** for predicting land cover class membership:
+The workflow uses **XGBoost (Extreme Gradient Boosting)**, a tree-based ensemble machine learning algorithm, for supervised land cover classification or continuous-value regression.
 
-Training labels are derived from **field plots and drone interpretation**: (1) **1×1 m vegetation plots** were described in the field and then assigned to the land cover classes used in this project, and (2) a complementary set of **a few thousand 5×5 m training pixels** was manually interpreted from **4 cm drone imagery** covering the areas around the vegetation plots. These references were used to create the land cover training/validation dataset (e.g., the `LandcoverRef.tif` layer).
+### Training Data
 
-- **Hyperspectral MNF bands (3)**: Capture spectral variance related to vegetation biochemistry and species composition
-- **Pauli decomposition RGB bands (3)**: Encode structural scattering properties related to canopy architecture and biomass
+Training labels can be provided as either:
+- **Raster mode:** A classified raster (e.g., `LandcoverRef.tif`) where each pixel has a class label
+- **Vector mode:** A shapefile or GeoPackage with point or polygon features, each attributed with a class label or continuous target value
 
-XGBoost iteratively builds decision trees that correct errors from previous trees, making it robust to class imbalance and capable of handling non-linear relationships between spectral/radar features and vegetation types. The model includes:
+Training references are derived from **field plots and drone interpretation**: (1) **1x1 m vegetation plots** described in the field and assigned to land cover classes, and (2) a complementary set of **training pixels** manually interpreted from **4 cm drone imagery**.
 
-- **Random undersampling** to balance training samples across minority and majority classes
+### Model Features
+
+- **Random undersampling** to balance training samples across minority and majority classes (configurable multiplier)
 - **5-fold stratified cross-validation** for unbiased accuracy estimation
 - **Early stopping** to prevent overfitting by monitoring validation loss
-- **Hyperparameter tuning** options via randomized search
-
-### Example Classification Performance
-
-The model generates learning curves and confusion matrices to assess classification performance:
-
-![Learning Curves and Confusion Matrix](output/LC_FMNF_SAR_0114_1103/LC_FMNF_SAR_0114_1103_learning_curves.png)
-
-*Left: Training vs validation loss over boosting rounds. Center: Generalization gap tracking. Right: Normalized confusion matrix showing per-class accuracy on the validation set.*
+- **Randomized hyperparameter search** (optional) for automated tuning
+- **Chunked prediction** to handle large images without running out of memory
+- **Time series prediction** to apply a trained model across multiple dates
 
 ## Workflow
 
-1. **Load Training Data** - Imports hyperspectral MNF (Minimum Noise Fraction) transformed imagery, SAR Pauli decomposition RGB, and reference land cover points
-2. **Feature Stacking** - Combines multi-sensor bands into a unified feature stack, with optional spectral indices (NDVI, NDWI, BSI)
-3. **Class Balancing** - Applies random undersampling to handle class imbalance, capping majority classes at a configurable multiplier of the minority class size
-4. **Model Training** - Trains an XGBoost classifier with 5-fold stratified cross-validation and early stopping
-5. **Prediction** - Applies the trained model to classify all valid pixels in the imagery
-6. **Visualization** - Generates interactive maps with satellite basemap overlay using hvplot/holoviews
-7. **Export** - Saves predictions as GeoTIFF with embedded colormap for ArcGIS compatibility
+1. **Configure** -- Set prediction mode, training data source, input datasets, and model parameters
+2. **Load Training Data** -- Stack multi-sensor bands into a unified feature set; compute optional spectral indices (NDVI, NDWI, BSI, etc.)
+3. **Class Balancing** -- Apply random undersampling, capping majority classes at a configurable multiplier of the minority class size
+4. **Model Training** -- Train XGBoost with cross-validation, early stopping, and optional hyperparameter search
+5. **Prediction** -- Classify/regress all valid pixels in configurable chunks to avoid OOM errors
+6. **Visualization** -- Generate interactive maps with satellite basemap overlay using hvplot/holoviews
+7. **Export** -- Save predictions as GeoTIFF with embedded colormap and a detailed run log
+8. **Time Series** (optional) -- Apply the trained model to a folder of multi-date images
 
 ## Land Cover Classes
 
 | Code | Class | Description |
 |------|-------|-------------|
-| 1 | DST | Deciduous Shrub Tundra |
-| 2 | TST | Tussock Tundra |
-| 3 | LTDST | Low to Tall Deciduous Shrub Tundra |
-| 4 | OST | Open Shrub Tundra |
-| 5 | Wet | Wetland |
-| 6 | Waterbody | Water |
-| 7 | PBHV | Partially Barren Herbaceous Vegetation |
-| 8 | Barren | Barren Ground |
-| 9 | SASH | Sandy Shore |
-| 10 | BRN | Burned Areas |
+| 1 | BAR | Barren Ground |
+| 2 | BRN | Burned Areas |
+| 3 | DST | Deciduous Shrub Tundra |
+| 4 | LTDST | Low to Tall Deciduous Shrub Tundra |
+| 5 | OST | Open Shrub Tundra |
+| 6 | PBHV | Partially Barren Herbaceous Vegetation |
+| 7 | TST | Tussock Tundra |
+| 8 | Waterbody | Water |
+| 9 | Wet | Wetland |
+
+*Note: Class names and count are auto-generated from vector training data when `VECTOR_CLASS_MAPPING=None`. The table above reflects the current default configuration.*
 
 ## Input Data Structure
 
 ```
 input/
-├── LandcoverRef.tif                  # Reference land cover raster (training labels)
-├── SAR Pauli/                        # UAVSAR Pauli decomposition RGB
+├── LandcoverRef.tif                              # Raster training labels (optional)
+├── LandcoverClassification.shp                    # Vector training labels (optional)
+├── SAR Pauli/                                     # UAVSAR Pauli decomposition RGB
 │   └── PauliRGB.tif
-├── Wyvern Tiles Nohistmatch FMNF/    # Wyvern Dragonette MNF-transformed (3 bands)
+├── Wyvern Tiles Nohistmatch FMNF/                 # Wyvern Dragonette MNF (3 bands)
 │   └── mosaic_nomatch_nofeather_quac_fmnf.dat
-└── Wyvern Tiles MNF3C/               # Alternative hyperspectral source for indices
-    └── mosaic_nomatch_nofeather_quac_imnf.dat
+├── Wyvern Tiles MNF3C/                            # Hyperspectral source for spectral indices
+│   └── mosaic_nomatch_nofeather_quac_imnf.dat
+├── S2/                                            # Sentinel-2 multispectral
+│   └── *.tif
+└── AlphaEarth/                                    # Foundation model embeddings (63 bands)
+    └── *.tiff
 ```
 
 ## Output
 
 Each run creates a timestamped folder in `output/` containing:
-- `*.tif` - Classified land cover raster (uint8 with embedded colormap)
-- `*.clr` - ArcGIS color file for symbology
-- `*.txt` - Run log with parameters, class distributions, and accuracy metrics
-- `*_learning_curves.png` - Training/validation loss curves and confusion matrix
+- `*.tif` -- Classified raster (uint8 with embedded colormap) or regression raster (float32)
+- `*.clr` -- ArcGIS color file for symbology (classification only)
+- `*.txt` -- Run log with parameters, class distributions, and accuracy metrics
+- `*_learning_curves.png` -- Training/validation loss curves and confusion matrix
+
+Time series runs additionally create a `timeseries/` subfolder with per-date GeoTIFFs.
 
 ## Configuration
 
-Key parameters in the notebook's Configuration section:
+Key parameters in the notebook's Configuration section (Cell 2):
 
 | Parameter | Description |
 |-----------|-------------|
-| `INPUT_DATASETS` | List of input rasters with band selection |
-| `SPECTRAL_INDICES` | Optional vegetation indices (NDVI, NDWI, BSI) |
+| `PREDICTION_MODE` | 'classification' or 'regression' |
+| `TRAINING_DATA_MODE` | 'raster' or 'vector' training labels |
+| `INPUT_DATASETS` | List of input rasters with band selection and optional spectral indices |
+| `XGBOOST_PARAMS` | XGBoost hyperparameters (n_estimators, max_depth, learning_rate, etc.) |
 | `BALANCE_MULTIPLIER` | Max ratio of majority to minority class samples |
-| `XGBOOST_PARAMS` | XGBoost hyperparameters |
-| `EARLY_STOPPING` | Stop training when validation loss plateaus |
+| `PREDICTION_CHUNK_SIZE` | Pixels per prediction batch (reduce if OOM) |
+
+Advanced parameters in Cell 4:
+
+| Parameter | Description |
+|-----------|-------------|
+| `REGRESSION_CONFIG` | Output dtype, NoData, clipping, and outlier filtering for regression |
+| `EARLY_STOPPING` | Enable/disable and set patience rounds |
+| `RANDOM_SEARCH_ENABLED` | Toggle automated hyperparameter tuning |
+| `CLASS_NAMES` | Land cover class name mapping (auto-generated or manual) |
 
 ## Requirements
 
@@ -111,15 +131,19 @@ Key parameters in the notebook's Configuration section:
 - xarray, rioxarray, rasterio
 - xgboost (with CUDA support recommended)
 - scikit-learn, imbalanced-learn
-- hvplot, holoviews, geoviews
-- matplotlib
+- hvplot, holoviews, geoviews, bokeh
+- matplotlib, numpy
+- scipy (for hyperparameter search distributions)
+
+Conda environment name: `DaskXArray`
 
 ## Usage
 
 1. Place input data in the `input/` folder following the structure above
 2. Open `XGBoost Vegetation Classification Balanced LCClasses.ipynb`
-3. Adjust configuration parameters as needed
-4. Run all cells
+3. In Section 1, configure prediction mode, training source, and enable desired datasets
+4. Adjust hyperparameters and balancing as needed
+5. Run all cells
 
 ## License
 
