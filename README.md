@@ -65,7 +65,7 @@ Training references are derived from **field plots and drone interpretation**: (
 |------|-------|-------------|
 | 1 | BAR | Barren Ground |
 | 2 | BRN | Burned Areas |
-| 3 | DST | Deciduous Shrub Tundra |
+| 3 | DST | Dwarf Shrub Tundra |
 | 4 | LTDST | Low to Tall Deciduous Shrub Tundra |
 | 5 | OST | Open Shrub Tundra |
 | 6 | PBHV | Partially Barren Herbaceous Vegetation |
